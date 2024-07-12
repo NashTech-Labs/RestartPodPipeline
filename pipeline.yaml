@@ -1,0 +1,33 @@
+trigger: none
+pr: none
+
+parameters:
+- name: Namespace
+  type: string
+- name: resourcegroup
+  type: string
+- name: akscluster
+  type: string
+- name: azure-sub
+  type: string
+
+pool:
+  vmImage: 'ubuntu-latest'
+
+
+steps:
+- task: AzureCLI@2
+  displayName: Connect to AKS
+  inputs:
+  azure-sub: 'your azure subscription'
+  scriptType: bash
+  scriptLocation: inlineScript
+  inlineScript: |
+                az aks get-credentials --resource-group  ${{parameters.resourcegroup}} --name ${{parameters.akscluster}}
+
+- task: Bash@3
+  displayName: Run kubectl command 
+  inputs:
+   targetType: 'inline'
+   script: |
+           kubectl delete pods --all -n {{parameters.Namespace}} 
